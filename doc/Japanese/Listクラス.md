@@ -16,11 +16,14 @@
     - [IsOverlap](#isoverlap)
     - [Item](#item)
     - [Join](#join)
+    - [Map](#map)
     - [OverlapList](#overlaplist)
     - [Remove](#remove)
     - [RemoveOverlap](#removeoverlap)
     - [Slice](#slice)
     - [ToArray](#toarray)
+    - [ToList](#tolist)
+    - [Where](#where)
 
 <!-- /code_chunk_output -->
 
@@ -103,6 +106,25 @@
 * VBAの配列で使えるJoinと同じように動作する。
 * 文字列に変換できないオブジェクトの場合、エラーになります
 
+### Map
+引数： 算術演算子の列挙型、算術対象(List型、Collection型、プリミティブ型に対応)  
+戻値： List型
+
+* 要素の中身を計算や結合し、新たにListを作成する
+* C#のSelectと同じように動作する。
+* VBAではアロー演算子が使えないため以下の列挙型で表現する
+
+**ArithmeticOperatorsEnum**
+|  要素名          |  説明  |
+| --------------- | --------|
+|  lsSum          |  足し算(+)|
+|  lsDifference   |  引き算(-)|
+|  lsMultiply     |  掛け算(*)|
+|  lsDivide       |  割り算(/)|
+|  lsMod          |  割り算の余り(mod)|
+|  lsExponent     |  乗数(^)|
+|  lsConcatenate  |  文字列結合(&)|
+
 ### OverlapList
 引数： なし  
 戻値： 重複したList
@@ -136,3 +158,29 @@
 
 * Listを1次配列へ変換する
 * インデックス番号は1から始まる
+
+### ToList
+引数： Listに格納する要素    
+戻値： List型
+
+* 同じ要素数のListを作成する
+
+### Where
+引数： 比較演算子の列挙型、比較対象(List型、Collection型、プリミティブ型に対応)  
+戻値： List型
+
+* 条件にあう要素のみを残し、新たにListを作成する
+* C#のWhereと同じように動作する。
+* VBAではアロー演算子が使えないため以下の列挙型で表現する
+
+**ComparisonOperatorsEnum**
+|  要素名           |  説明  |
+| ------------------| --------|
+|  lsEqual          |  等しい(=)|
+|  lsNotEqual       |  等しくない(<>)|
+|  lsGreater        |  超える(>)|
+|  lsLess           |  未満(<)|
+|  lsGreaterEqual   |  以上(>=)|
+|  lsLessEqual      |  以下(<=)|
+|  lsObjectEqual    |  参照比較(Is)|
+|  lsLike           |  文字列比較(Like)|

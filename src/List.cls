@@ -9,16 +9,30 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 '''<classSummary> Collectionにメソッドを拡張したList型、キーは使用できません。
-'''<updateDate> 2020/8/28
-'''<version> Ver.102
+'''<updateDate> 2020/9/2
+'''<version> Ver.103
 
+'''<summary> 比較演算子の列挙型
 Enum ComparisonOperatorsEnum
-    equal = 1
-    notEqual = 2
-    over = 3
-    under = 4
-    andOver = 5
-    andUnder = 6
+    lsEqual = 1
+    lsNotEqual = 2
+    lsGreater = 3
+    lsLess = 4
+    lsGreaterEqual = 5
+    lsLessEqual = 6
+    lsObjectEqual = 7
+    lsLike = 8
+End Enum
+
+'''<summary> 算術演算子の列挙型
+Enum ArithmeticOperatorsEnum
+    lsSum = 1
+    lsDifference = 2
+    lsMultiply = 3
+    lsDivide = 4
+    lsMod = 5
+    lsExponent = 6
+    lsConcatenate = 7
 End Enum
 
 Private Coll As Collection
@@ -249,6 +263,257 @@ Public Function Concat(ParamArray Lists() As Variant) As List
         buf.AddValue l
     Next
     Set Concat = buf
+
+End Function
+
+'''<summary> 同じ要素数のListを作成する。
+'''<param> Listに格納する要素
+'''<returns> List型
+Public Function ToList(ByVal Value As Variant) As List
+
+    Dim lst As List
+    Set lst = New List
+    Dim i As Long
+    For i = 1 To Me.Count
+        lst.Add Value
+    Next
+    Set ToList = lst
+
+End Function
+
+'''<summary> 条件にあう要素のみを残し、新たにListを作成する
+'''<param> 比較演算子の列挙型、比較対象(List型、Collection型、プリミティブ型に対応)
+'''<returns> List型
+Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare As Variant) As List
+
+    Dim buf As List
+    Set buf = New List
+    Dim i As Long
+    Dim var1, var2
+    
+    Select Case TypeName(compare)
+        Case "List", "Collection"
+            Select Case operator
+                Case ComparisonOperatorsEnum.lsEqual
+                    For i = 1 To Me.Count
+                        var1 = Me(i)
+                        var2 = compare(i)
+                        If var1 = var2 Then
+                            buf.Add var1
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsNotEqual
+                    For i = 1 To Me.Count
+                        var1 = Me(i)
+                        var2 = compare(i)
+                        If var1 <> var2 Then
+                            buf.Add var1
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsLike
+                    For i = 1 To Me.Count
+                        var1 = CStr(Me(i))
+                        var2 = CStr(compare(i))
+                        If var1 Like var2 Then
+                            buf.Add var1
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsGreater
+                    For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(compare(i))
+                        If var1 > var2 Then
+                            buf.Add var1
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsLess
+                    For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(compare(i))
+                        If var1 < var2 Then
+                            buf.Add var1
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsGreaterEqual
+                    For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(compare(i))
+                        If var1 >= var2 Then
+                            buf.Add var1
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsLessEqual
+                    For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(compare(i))
+                        If var1 <= var2 Then
+                            buf.Add var1
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsObjectEqual
+                    For i = 1 To Me.Count
+                        var1 = Me(i)
+                        var2 = compare(i)
+                        If var1 Is var2 Then
+                            buf.Add var1
+                        End If
+                    Next
+                Case Else
+                    err.Raise Number:=1005, Description:="クラス：List、メソッド：Where、引数の型が適切ではありません。 "
+            End Select
+        Case Else
+             Select Case operator
+                Case ComparisonOperatorsEnum.lsEqual
+                    For i = 1 To Me.Count
+                        If Me(i) = compare Then
+                            buf.Add Me(i)
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsNotEqual
+                    For i = 1 To Me.Count
+                        If Me(i) <> compare Then
+                            buf.Add Me(i)
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsLike
+                    For i = 1 To Me.Count
+                        If CStr(Me(i)) Like CStr(compare) Then
+                            buf.Add Me(i)
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsGreater
+                    For i = 1 To Me.Count
+                        If Val(Me(i)) > Val(compare) Then
+                            buf.Add Me(i)
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsLess
+                    For i = 1 To Me.Count
+                        If Val(Me(i)) < Val(compare) Then
+                            buf.Add Me(i)
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsGreaterEqual
+                    For i = 1 To Me.Count
+                        If Val(Me(i)) >= Val(compare) Then
+                            buf.Add Me(i)
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsLessEqual
+                    For i = 1 To Me.Count
+                        If Val(Me(i)) <= Val(compare) Then
+                            buf.Add Me(i)
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsObjectEqual
+                    For i = 1 To Me.Count
+                        If Me(i) Is compare Then
+                            buf.Add Me(i)
+                        End If
+                    Next
+                Case Else
+                    err.Raise Number:=1005, Description:="クラス：List、メソッド：Where、引数の型が適切ではありません。 "
+            End Select
+        End Select
+
+    Set Where = buf
+
+End Function
+
+'''<summary> 要素の中身を計算や結合し、新たにListを作成する
+'''<param> 算術演算子の列挙型、算術対象(List型、Collection型、プリミティブ型に対応)
+'''<returns> List型
+Public Function Map(ByVal operator As ArithmeticOperatorsEnum, ByVal target As Variant) As List
+
+    Dim buf As List
+    Set buf = New List
+    Dim i As Long
+    Dim var1, var2
+
+    Select Case TypeName(target)
+        Case "List", "Collection"
+            Select Case operator
+                Case ArithmeticOperatorsEnum.lsConcatenate
+                     For i = 1 To Me.Count
+                        var1 = CStr(Me(i))
+                        var2 = CStr(target(i))
+                        buf.Add var1 & var2
+                    Next
+                Case ArithmeticOperatorsEnum.lsSum
+                    For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(target(i))
+                        buf.Add var1 + var2
+                    Next
+                Case ArithmeticOperatorsEnum.lsDifference
+                    For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(target(i))
+                        buf.Add var1 - var2
+                    Next
+                Case ArithmeticOperatorsEnum.lsMultiply
+                    For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(target(i))
+                        buf.Add var1 * var2
+                    Next
+                Case ArithmeticOperatorsEnum.lsDivide
+                     For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(target(i))
+                        buf.Add var1 / var2
+                    Next
+                Case ArithmeticOperatorsEnum.lsMod
+                     For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(target(i))
+                        buf.Add var1 Mod var2
+                    Next
+                Case ArithmeticOperatorsEnum.lsExponent
+                     For i = 1 To Me.Count
+                        var1 = Val(Me(i))
+                        var2 = Val(target(i))
+                        buf.Add var1 ^ var2
+                    Next
+                Case Else
+                    err.Raise Number:=1006, Description:="クラス：List、メソッド：Map、引数の型が適切ではありません。 "
+            End Select
+        Case Else
+            Select Case operator
+                 Case ArithmeticOperatorsEnum.lsConcatenate
+                     For i = 1 To Me.Count
+                        buf.Add CStr(Me(i)) & CStr(target)
+                    Next
+                Case ArithmeticOperatorsEnum.lsSum
+                    For i = 1 To Me.Count
+                        buf.Add Val(Me(i)) + Val(target)
+                    Next
+                Case ArithmeticOperatorsEnum.lsDifference
+                    For i = 1 To Me.Count
+                        buf.Add Val(Me(i)) - Val(target)
+                    Next
+                Case ArithmeticOperatorsEnum.lsMultiply
+                    For i = 1 To Me.Count
+                        buf.Add Val(Me(i)) * Val(target)
+                    Next
+                Case ArithmeticOperatorsEnum.lsDivide
+                     For i = 1 To Me.Count
+                        buf.Add Val(Me(i)) / Val(target)
+                    Next
+                Case ArithmeticOperatorsEnum.lsMod
+                     For i = 1 To Me.Count
+                        buf.Add Val(Me(i)) Mod Val(target)
+                    Next
+                Case ArithmeticOperatorsEnum.lsExponent
+                     For i = 1 To Me.Count
+                        buf.Add Val(Me(i)) ^ Val(target)
+                    Next
+                Case Else
+                    err.Raise Number:=1006, Description:="クラス：List、メソッド：Map、引数の型が適切ではありません。 "
+            End Select
+        End Select
+
+    Set Map = buf
 
 End Function
 
