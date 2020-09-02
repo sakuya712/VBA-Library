@@ -16,11 +16,14 @@ Contents
     - [IsOverlap](#isoverlap)
     - [Item](#item)
     - [Join](#join)
+    - [Map](#map)
     - [OverlapList](#overlaplist)
     - [Remove](#remove)
     - [RemoveOverlap](#removeoverlap)
     - [Slice](#slice)
     - [ToArray](#toarray)
+    - [ToList](#tolist)
+    - [Where](#where)
 
 <!-- /code_chunk_output -->
 
@@ -103,6 +106,25 @@ Return value： Concatenated string
 * Works the same as VBA Join in Array
 * If the object cannot be converted to a string, an error will be returned
 
+### Map
+Argument: Arithmetic operator, arithmetic target (List type, Collection type, primitive type supported)  
+Return value： List type
+
+* Create a new List by calculating and combining the contents of elements
+* Works the same as C# Select
+* Since the arrow operator cannot be used in VBA, it is represented by the following enum type
+
+**ArithmeticOperatorsEnum**
+|  Element name   |  Explanation  |
+| --------------- | --------|
+|  lsSum          |  Sum (+)|
+|  lsDifference   |  Difference(-)|
+|  lsMultiply     |  Multiply(*)|
+|  lsDivide       |  Divide(/)|
+|  lsMod          |  Modulo(mod)|
+|  lsExponent     |  Exponent(^)|
+|  lsConcatenate  |  Concatenate(&)|
+
 ### OverlapList
 Argument： None  
 Return value： Duplicate List
@@ -131,8 +153,34 @@ Return value： List type with elements cut off
 * If the second argument is omitted, up to the last index number will be specified
 
 ### ToArray
-Argument： なし  
+Argument： None  
 Return value： Primary array
 
 * Convert List to primary array
 * Index number starts from 1
+
+### ToList
+Argument: The elements to store in the List   
+Return value： List type
+
+* Create a List with the same number of elements
+
+### Where
+Argument: Comparison operator, comparison target (corresponding to List type, Collection type, primitive type)  
+Return value： List type
+
+* Create a new List, leaving only the elements that meet the conditions
+* Works the same as C# Where
+* Since the arrow operator cannot be used in VBA, it is represented by the following enum type
+
+**ComparisonOperatorsEnum**
+|  Element name     |  Explanation  |
+| ------------------| --------|
+|  lsEqual          |  Equal(=)|
+|  lsNotEqual       |  NotEqual(<>)|
+|  lsGreater        |  Greater(>)|
+|  lsLess           |  Less(<)|
+|  lsGreaterEqual   |  GreaterEqual(>=)|
+|  lsLessEqual      |  LessEqual(<=)|
+|  lsObjectEqual    |  Reference comparison(Is)|
+|  lsLike           |  String comparison(Like)|

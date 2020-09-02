@@ -420,8 +420,8 @@ Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare A
 
 End Function
 
-'''<summary> List同士の要素の中身を計算や結合をし、新たにListを作成する
-'''<param> 算術演算子の列挙型、算術対象のリスト(List型、Collection型、プリミティブ型に対応)
+'''<summary> 要素の中身を計算や結合し、新たにListを作成する
+'''<param> 算術演算子の列挙型、算術対象(List型、Collection型、プリミティブ型に対応)
 '''<returns> List型
 Public Function Map(ByVal operator As ArithmeticOperatorsEnum, ByVal target As Variant) As List
 
