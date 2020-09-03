@@ -9,8 +9,8 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 '''<classSummary> Collectionにメソッドを拡張したList型、キーは使用できません。
-'''<updateDate> 2020/9/2
-'''<version> Ver.103
+'''<updateDate> 2020/9/3
+'''<version> Ver.104
 
 '''<summary> 比較演算子の列挙型
 Enum ComparisonOperatorsEnum
@@ -22,17 +22,18 @@ Enum ComparisonOperatorsEnum
     lsLessEqual = 6
     lsObjectEqual = 7
     lsLike = 8
+    lsNotLike = 9
 End Enum
 
 '''<summary> 算術演算子の列挙型
 Enum ArithmeticOperatorsEnum
-    lsSum = 1
-    lsDifference = 2
-    lsMultiply = 3
-    lsDivide = 4
-    lsMod = 5
-    lsExponent = 6
-    lsConcatenate = 7
+    lsSum = 101
+    lsDifference = 102
+    lsMultiply = 103
+    lsDivide = 104
+    lsMod = 105
+    lsExponent = 106
+    lsConcatenate = 107
 End Enum
 
 Private Coll As Collection
@@ -157,7 +158,7 @@ End Function
 '''<summary> 重複がないListを作成する
 '''<param> なし
 '''<returns> 重複を削除したList
-Public Function RemoveOverlap() As List
+Public Function Unique() As List
     Dim buf As Collection
     Set buf = New Collection
     Dim c As Variant
@@ -169,7 +170,7 @@ Public Function RemoveOverlap() As List
     Dim lst As List
     Set lst = New List
     lst.AddValue buf
-    Set RemoveOverlap = lst
+    Set Unique = lst
 End Function
 
 '''<summary> 重複した値をリスト化する
@@ -193,7 +194,7 @@ Public Function OverlapList() As List
             End If
         Next
     Next
-    Set Overlap = Overlap.RemoveOverlap
+    Set Overlap = Overlap.Unique
 
     Set OverlapList = Overlap
     
@@ -318,6 +319,14 @@ Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare A
                             buf.Add var1
                         End If
                     Next
+                Case ComparisonOperatorsEnum.lsNotLike
+                    For i = 1 To Me.Count
+                        var1 = CStr(Me(i))
+                        var2 = CStr(compare(i))
+                        If Not (var1 Like var2) Then
+                            buf.Add var1
+                        End If
+                    Next
                 Case ComparisonOperatorsEnum.lsGreater
                     For i = 1 To Me.Count
                         var1 = Val(Me(i))
@@ -378,6 +387,12 @@ Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare A
                 Case ComparisonOperatorsEnum.lsLike
                     For i = 1 To Me.Count
                         If CStr(Me(i)) Like CStr(compare) Then
+                            buf.Add Me(i)
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsNotLike
+                    For i = 1 To Me.Count
+                        If Not (CStr(Me(i)) Like CStr(compare)) Then
                             buf.Add Me(i)
                         End If
                     Next
