@@ -19,10 +19,10 @@
     - [Map](#map)
     - [OverlapList](#overlaplist)
     - [Remove](#remove)
-    - [RemoveOverlap](#removeoverlap)
     - [Slice](#slice)
     - [ToArray](#toarray)
     - [ToList](#tolist)
+    - [Unique](#unique)
     - [Where](#where)
 
 <!-- /code_chunk_output -->
@@ -138,12 +138,6 @@
 
 * 要素を削除する。Collection型と同じ。
 
-### RemoveOverlap
-引数： なし  
-戻値： 重複しないList
-
-* 重複しないリストを作成する。
-
 ### Slice
 引数： 先頭のインデックス番号、[後尾のインデックス番号]    
 戻値： 要素を切り取ったList型
@@ -165,6 +159,13 @@
 
 * 同じ要素数のListを作成する
 
+### Unique
+引数： なし  
+戻値： 重複しないList
+
+* 重複しないリストを作成する。
+* C#のDistinctと同じように動作する。
+
 ### Where
 引数： 比較演算子の列挙型、比較対象(List型、Collection型、プリミティブ型に対応)  
 戻値： List型
@@ -184,3 +185,4 @@
 |  lsLessEqual      |  以下(<=)|
 |  lsObjectEqual    |  参照比較(Is)|
 |  lsLike           |  文字列比較(Like)|
+|  lsNotLike        |  文字列比較の否定(Not Like)|

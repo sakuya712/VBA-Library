@@ -19,10 +19,10 @@ Contents
     - [Map](#map)
     - [OverlapList](#overlaplist)
     - [Remove](#remove)
-    - [RemoveOverlap](#removeoverlap)
     - [Slice](#slice)
     - [ToArray](#toarray)
     - [ToList](#tolist)
+    - [Unique](#unique)
     - [Where](#where)
 
 <!-- /code_chunk_output -->
@@ -138,12 +138,6 @@ Return value： None
 
 * Delete the element. Same as Collection type
 
-### RemoveOverlap
-Argument： None  
-Return value： Unique List
-
-* Create a unique list.
-
 ### Slice
 Argument： First index number, [Last index number]    
 Return value： List type with elements cut off
@@ -165,6 +159,13 @@ Return value： List type
 
 * Create a List with the same number of elements
 
+### Unique
+Argument： None  
+Return value： Unique List
+
+* Create a unique list.
+* Works the same as C# Distinct
+
 ### Where
 Argument: Comparison operator, comparison target (corresponding to List type, Collection type, primitive type)  
 Return value： List type
@@ -184,3 +185,4 @@ Return value： List type
 |  lsLessEqual      |  LessEqual(<=)|
 |  lsObjectEqual    |  Reference comparison(Is)|
 |  lsLike           |  String comparison(Like)|
+|  lsNotLike        |  String comparison(Not Like)|
