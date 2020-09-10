@@ -9,8 +9,8 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 '''<classSummary> Collectionにメソッドを拡張したList型、キーは使用できません。
-'''<updateDate> 2020/9/3
-'''<version> Ver.104
+'''<updateDate> 2020/9/8
+'''<version> Ver.105
 
 '''<summary> 比較演算子の列挙型
 Enum ComparisonOperatorsEnum
@@ -283,10 +283,12 @@ Public Function ToList(ByVal Value As Variant) As List
 End Function
 
 '''<summary> 条件にあう要素のみを残し、新たにListを作成する
-'''<param> 比較演算子の列挙型、比較対象(List型、Collection型、プリミティブ型に対応)
+'''<param> 比較演算子の列挙型、比較対象(List型、Collection型、プリミティブ型に対応)、関連したList(省略した場合自身のList)
 '''<returns> List型
-Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare As Variant) As List
-
+Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare As Variant, Optional ByVal dictList As List = Nothing) As List
+    
+    If dictList Is Nothing Then Set dictList = Me
+    
     Dim buf As List
     Set buf = New List
     Dim i As Long
@@ -300,71 +302,71 @@ Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare A
                         var1 = Me(i)
                         var2 = compare(i)
                         If var1 = var2 Then
-                            buf.Add var1
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsNotEqual
                     For i = 1 To Me.Count
-                        var1 = Me(i)
+                        var1 = dictList(i)
                         var2 = compare(i)
                         If var1 <> var2 Then
-                            buf.Add var1
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsLike
                     For i = 1 To Me.Count
-                        var1 = CStr(Me(i))
+                        var1 = CStr(dictList(i))
                         var2 = CStr(compare(i))
                         If var1 Like var2 Then
-                            buf.Add var1
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsNotLike
                     For i = 1 To Me.Count
-                        var1 = CStr(Me(i))
+                        var1 = CStr(dictList(i))
                         var2 = CStr(compare(i))
                         If Not (var1 Like var2) Then
-                            buf.Add var1
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsGreater
                     For i = 1 To Me.Count
-                        var1 = Val(Me(i))
+                        var1 = Val(dictList(i))
                         var2 = Val(compare(i))
                         If var1 > var2 Then
-                            buf.Add var1
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsLess
                     For i = 1 To Me.Count
-                        var1 = Val(Me(i))
+                        var1 = Val(dictList(i))
                         var2 = Val(compare(i))
                         If var1 < var2 Then
-                            buf.Add var1
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsGreaterEqual
                     For i = 1 To Me.Count
-                        var1 = Val(Me(i))
+                        var1 = Val(dictList(i))
                         var2 = Val(compare(i))
                         If var1 >= var2 Then
-                            buf.Add var1
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsLessEqual
                     For i = 1 To Me.Count
-                        var1 = Val(Me(i))
+                        var1 = Val(dictList(i))
                         var2 = Val(compare(i))
                         If var1 <= var2 Then
-                            buf.Add var1
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsObjectEqual
                     For i = 1 To Me.Count
-                        var1 = Me(i)
+                        var1 = dictList(i)
                         var2 = compare(i)
                         If var1 Is var2 Then
-                            buf.Add var1
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case Else
@@ -375,55 +377,55 @@ Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare A
                 Case ComparisonOperatorsEnum.lsEqual
                     For i = 1 To Me.Count
                         If Me(i) = compare Then
-                            buf.Add Me(i)
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsNotEqual
                     For i = 1 To Me.Count
                         If Me(i) <> compare Then
-                            buf.Add Me(i)
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsLike
                     For i = 1 To Me.Count
                         If CStr(Me(i)) Like CStr(compare) Then
-                            buf.Add Me(i)
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsNotLike
                     For i = 1 To Me.Count
                         If Not (CStr(Me(i)) Like CStr(compare)) Then
-                            buf.Add Me(i)
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsGreater
                     For i = 1 To Me.Count
                         If Val(Me(i)) > Val(compare) Then
-                            buf.Add Me(i)
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsLess
                     For i = 1 To Me.Count
                         If Val(Me(i)) < Val(compare) Then
-                            buf.Add Me(i)
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsGreaterEqual
                     For i = 1 To Me.Count
                         If Val(Me(i)) >= Val(compare) Then
-                            buf.Add Me(i)
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsLessEqual
                     For i = 1 To Me.Count
                         If Val(Me(i)) <= Val(compare) Then
-                            buf.Add Me(i)
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case ComparisonOperatorsEnum.lsObjectEqual
                     For i = 1 To Me.Count
                         If Me(i) Is compare Then
-                            buf.Add Me(i)
+                            buf.Add dictList(i)
                         End If
                     Next
                 Case Else
@@ -586,6 +588,37 @@ Public Function Slice(ByVal StartIndex As Long, Optional ByVal EndIndex As Long 
     Set Slice = buf
 
 End Function
+
+'''<summary> Listをセルに書き込む
+'''<param> 書き込むセル範囲
+'''<returns> なし
+'''<remarks> 2次配列になるようにセル範囲を指定しないこと
+Public Function ToWriteCells(ByVal WriteRange As Range)
+    
+    On Error GoTo err1
+    Dim i As Long
+    Dim buf() As Variant
+    If WriteRange.Columns.Count = 1 Then
+        ReDim buf(1 To WriteRange.Rows.Count, 1 To 1)
+        For i = 1 To WriteRange.Rows.Count
+            buf(i, 1) = Me(i)
+        Next
+    ElseIf WriteRange.Rows.Count = 1 Then
+        ReDim buf(1 To 1, 1 To WriteRange.Columns.Count)
+        For i = 1 To WriteRange.Columns.Count
+            buf(1, i) = Me(i)
+        Next
+    Else
+        err.Raise Number:=1009, Description:="クラス：List、メソッド：ToWriteCells、2次配列になるようにセル範囲を選択しています"
+        Exit Function
+    End If
+
+    WriteRange.Value = buf()
+    Exit Function
+err1:
+    err.Raise Number:=1010, Description:="クラス：List、メソッド：ToWriteCells、Listの要素数より大きい範囲を指定しています"
+End Function
+
 
 '''<summary> イテレータ ※単独では使用できません
 '''<param> なし

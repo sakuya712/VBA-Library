@@ -22,6 +22,7 @@
     - [Slice](#slice)
     - [ToArray](#toarray)
     - [ToList](#tolist)
+    - [ToWriteCells](#towritecells)
     - [Unique](#unique)
     - [Where](#where)
 
@@ -159,6 +160,14 @@
 
 * 同じ要素数のListを作成する
 
+### ToWriteCells
+引数： 書き込む範囲    
+戻値： なし
+
+* 現在のListを引数の範囲に書き込む
+* 2次配列になるようにセル範囲を指定するとエラーになる
+* Excel以外では使えないので削除すること
+
 ### Unique
 引数： なし  
 戻値： 重複しないList
@@ -167,12 +176,13 @@
 * C#のDistinctと同じように動作する。
 
 ### Where
-引数： 比較演算子の列挙型、比較対象(List型、Collection型、プリミティブ型に対応)  
+引数： 比較演算子の列挙型、比較対象(List型、Collection型、プリミティブ型に対応)、[値になるList]  
 戻値： List型
 
 * 条件にあう要素のみを残し、新たにListを作成する
 * C#のWhereと同じように動作する。
 * VBAではアロー演算子が使えないため以下の列挙型で表現する
+* 3つ目の引数は戻される値のListを指定できる。Listを2つ用意すればdictionaryのように使える。省略した場合は自身のListが返る
 
 **ComparisonOperatorsEnum**
 |  要素名           |  説明  |
