@@ -22,6 +22,7 @@ Contents
     - [Slice](#slice)
     - [ToArray](#toarray)
     - [ToList](#tolist)
+    - [ToWriteCells](#towritecells)
     - [Unique](#unique)
     - [Where](#where)
 
@@ -159,6 +160,14 @@ Return value： List type
 
 * Create a List with the same number of elements
 
+### ToWriteCells
+Argument: Range to write    
+Return value： None
+
+* Write the current List to the argument range
+* An error will occur if the cell range is specified so that it becomes a quadratic array.
+* It can only be used in Excel
+
 ### Unique
 Argument： None  
 Return value： Unique List
@@ -173,6 +182,7 @@ Return value： List type
 * Create a new List, leaving only the elements that meet the conditions
 * Works the same as C# Where
 * Since the arrow operator cannot be used in VBA, it is represented by the following enum type
+* The third argument can specify a list of values ​​to be returned. If you prepare two lists, you can use it like a dictionary. If omitted, its own list will be returned
 
 **ComparisonOperatorsEnum**
 |  Element name     |  Explanation  |
