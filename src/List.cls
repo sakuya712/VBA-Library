@@ -9,8 +9,9 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 '''<classSummary> Collectionにメソッドを拡張したList型、キーは使用できません。
-'''<updateDate> 2020/9/8
-'''<version> Ver.105
+'''<updateDate> 2020/9/24
+'''<version> Ver.108
+'''<remarks> Lists型が必要です
 
 '''<summary> 比較演算子の列挙型
 Enum ComparisonOperatorsEnum
@@ -21,8 +22,9 @@ Enum ComparisonOperatorsEnum
     lsGreaterEqual = 5
     lsLessEqual = 6
     lsObjectEqual = 7
-    lsLike = 8
-    lsNotLike = 9
+    lsObjectNotEqual = 8
+    lsLike = 9
+    lsNotLike = 10
 End Enum
 
 '''<summary> 算術演算子の列挙型
@@ -34,6 +36,34 @@ Enum ArithmeticOperatorsEnum
     lsMod = 105
     lsExponent = 106
     lsConcatenate = 107
+End Enum
+
+'''<summary> 集計内容の列挙型
+Enum AggregateEnum
+    lsAverage = 201
+    lsCount = 202
+    lsCountA = 203
+    lsMax = 204
+    lsMin = 205
+    lsProduct = 206
+    lsTotal = 207
+    lsMedian = 208
+    lsLarge = 209
+    lsSmall = 210
+End Enum
+
+'''<summary> データ型変換の列挙型
+Enum TypeConversionEnum
+    lsBoolean = 301
+    lsByte = 302
+    lsCurrency = 303
+    lsDate = 304
+    lsDouble = 305
+    lsDecimal = 306
+    lsLong = 307
+    lsString = 308
+    lsVariant = 309
+    lsVal = 310
 End Enum
 
 Private Coll As Collection
@@ -90,12 +120,12 @@ End Function
 '''<param> インデックス番号
 '''<returns> 内容
 '''<remarks> 既定メンバ
-Public Function Item(ByVal index As Long) As Variant
+Public Function Item(ByVal Index As Long) As Variant
 Attribute Item.VB_UserMemId = 0
-    If VarType(Coll(index)) = vbObject Then
-        Set Item = Coll(index)
+    If VarType(Coll(Index)) = vbObject Then
+        Set Item = Coll(Index)
     Else
-        Item = Coll(index)
+        Item = Coll(Index)
     End If
 End Function
 
@@ -109,8 +139,22 @@ End Function
 '''<summary> 要素数を削除する
 '''<param> 削除するインデックス番号
 '''<returns> なし
-Public Function Remove(ByVal index As Long)
-    Coll.Remove (index)
+Public Function Remove(ByVal Index As Long)
+    Coll.Remove (Index)
+End Function
+
+'''<summary> Empty、空文字("")、Nullの要素を取り除く
+'''<param> なし
+'''<returns> 取り除かれたList
+Public Function RemoveEmpty() As List
+    Dim newList As New List
+    Dim element As Variant
+    For Each element In Me
+        If Not (element = vbNullString Or IsEmpty(element) Or IsNull(element)) Then
+            newList.Add element
+        End If
+    Next element
+    Set RemoveEmpty = newList
 End Function
 
 '''<summary> 差集合のListを作成する
@@ -121,14 +165,14 @@ Public Function Except(ByVal ExceptList As List) As List
     Set lst = New List
     lst.AddValue Coll
     Dim e As Variant
-    Dim index As Long
+    Dim Index As Long
     For Each e In ExceptList
-        index = 1
-        Do While index <= lst.Count
-            If e = lst(index) Then
-                lst.Remove (index)
+        Index = 1
+        Do While Index <= lst.Count
+            If e = lst(Index) Then
+                lst.Remove (Index)
             Else
-                index = index + 1
+                Index = Index + 1
             End If
         Loop
     Next
@@ -369,6 +413,14 @@ Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare A
                             buf.Add dictList(i)
                         End If
                     Next
+                Case ComparisonOperatorsEnum.lsObjectNotEqual
+                    For i = 1 To Me.Count
+                        var1 = dictList(i)
+                        var2 = compare(i)
+                        If Not (var1 Is var2) Then
+                            buf.Add dictList(i)
+                        End If
+                    Next
                 Case Else
                     err.Raise Number:=1005, Description:="クラス：List、メソッド：Where、引数の型が適切ではありません。 "
             End Select
@@ -425,6 +477,12 @@ Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare A
                 Case ComparisonOperatorsEnum.lsObjectEqual
                     For i = 1 To Me.Count
                         If Me(i) Is compare Then
+                            buf.Add dictList(i)
+                        End If
+                    Next
+                Case ComparisonOperatorsEnum.lsObjectNotEqual
+                    For i = 1 To Me.Count
+                        If Not (Me(i) Is compare) Then
                             buf.Add dictList(i)
                         End If
                     Next
@@ -619,7 +677,211 @@ err1:
     err.Raise Number:=1010, Description:="クラス：List、メソッド：ToWriteCells、Listの要素数より大きい範囲を指定しています"
 End Function
 
+'''<summary>指定された区切り文字で分割する
+'''<param>区切り文字
+'''<returns>Lists型
+Public Function Split(ByVal Delimiter As String) As Lists
+    Dim lsts As New Lists
+    Dim ls As List
+    Dim i As Long
+    Dim Arr As Variant
+    For i = 1 To Me.Count
+        Arr = VBA.Split(CStr(Me(i)), Delimiter)
+        Set ls = New List
+        ls.AddValue Arr
+        lsts.Add ls, i
+    Next i
+    Set Split = lsts
+End Function
 
+'''<summary>Listにある値を使って様々な集計を行う
+'''<param>集計内容の列挙型、[何番目か(Large、Smallのみ)]
+'''<returns>集計結果(Double型)
+Public Function Aggregate(ByVal Func As AggregateEnum, Optional ByVal Rank As Long = 1) As Double
+
+    Dim fn As WorksheetFunction
+    Set fn = Application.WorksheetFunction
+    Select Case Func
+        Case AggregateEnum.lsAverage
+            Aggregate = fn.Average(Me.ToArray())
+            Exit Function
+        Case AggregateEnum.lsCount
+            Aggregate = fn.Count(Me.ToArray())
+            Exit Function
+        Case AggregateEnum.lsCountA
+            Aggregate = fn.CountA(Me.ToArray())
+            Exit Function
+        Case AggregateEnum.lsMax
+            Aggregate = fn.Max(Me.ToArray())
+            Exit Function
+        Case AggregateEnum.lsMin
+            Aggregate = fn.Min(Me.ToArray())
+            Exit Function
+        Case AggregateEnum.lsProduct
+            Aggregate = fn.Product(Me.ToArray())
+            Exit Function
+        Case AggregateEnum.lsTotal
+            Aggregate = fn.Sum(Me.ToArray())
+            Exit Function
+        Case AggregateEnum.lsMedian
+            Aggregate = fn.Median(Me.ToArray())
+            Exit Function
+        Case AggregateEnum.lsLarge
+            Aggregate = fn.Large(Me.ToArray(), Rank)
+            Exit Function
+        Case AggregateEnum.lsSmall
+            Aggregate = fn.Small(Me.ToArray(), Rank)
+            Exit Function
+        Case Else
+            err.Raise Number:=1021, Description:="クラス：List、メソッド：Aggregate、引数の型が適切ではありません。 "
+            Exit Function
+    End Select
+End Function
+
+'''<summary>Listに格納されているデータ型を変換する
+'''<param>データ型変換の列挙型
+'''<returns>変換したList
+Public Function TypeConversion(ByVal Conversion As TypeConversionEnum) As List
+    Dim newList As List
+    Set newList = New List
+    Dim element As Variant
+    Select Case Conversion
+        Case TypeConversionEnum.lsBoolean
+            For Each element In Me
+                newList.Add CBool(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case TypeConversionEnum.lsByte
+            For Each element In Me
+                newList.Add CByte(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case TypeConversionEnum.lsCurrency
+            For Each element In Me
+                newList.Add CCur(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case TypeConversionEnum.lsDate
+            For Each element In Me
+                newList.Add CDate(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case TypeConversionEnum.lsDouble
+            For Each element In Me
+                newList.Add CDbl(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case TypeConversionEnum.lsDecimal
+            For Each element In Me
+                newList.Add CDec(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case TypeConversionEnum.lsLong
+            For Each element In Me
+                newList.Add CLng(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case TypeConversionEnum.lsString
+            For Each element In Me
+                newList.Add CStr(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case TypeConversionEnum.lsVariant
+            For Each element In Me
+                newList.Add CVar(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case TypeConversionEnum.lsVal
+            For Each element In Me
+                newList.Add Val(element)
+            Next element
+            Set TypeConversion = newList
+            Exit Function
+        Case Else
+            err.Raise Number:=1022, Description:="クラス：List、メソッド：TypeConversion、引数の型が適切ではありません。 "
+            Exit Function
+    End Select
+End Function
+
+'''<summary>特定の文字を置換する
+'''<param>置換対象、置換後の文字
+'''<returns>Lists型
+Public Function Replace(ByVal findString As String, ByVal replaceString As String) As List
+    Dim ls As New List
+    Dim i As Long
+    For i = 1 To Me.Count
+        ls.Add VBA.Replace(Me(i), findString, replaceString)
+    Next i
+    Set Replace = ls
+End Function
+
+'''<summary>指定された文字列より前の文字を抜き取る
+'''<param>基準となる文字列
+'''<returns>Lists型
+Public Function Rstrip(ByVal char As String) As List
+    Dim ls As New List
+    Dim i As Long
+    Dim Arr As Variant
+    For i = 1 To Me.Count
+        Arr = VBA.Split(CStr(Me(i)), char)
+        ls.Add Arr(0)
+    Next i
+    Set Rstrip = ls
+End Function
+
+'''<summary>指定された文字列より後の文字を抜き取る
+'''<param>基準となる文字列
+'''<returns>Lists型
+Public Function Lstrip(ByVal char As String) As List
+    Dim ls As New List
+    Dim i As Long
+    Dim Arr As Variant
+    For i = 1 To Me.Count
+        Arr = VBA.Split(CStr(Me(i)), char)
+        If UBound(Arr) Then
+            ls.Add Arr(1)
+        Else
+            ls.Add Arr(0)
+        End If
+    Next i
+    Set Lstrip = ls
+End Function
+
+'''<summary>ListFuncクラスに書いたメソッドを実行して新たにListを作成する
+'''<param>メソッド名、[メソッドの引数]
+'''<returns>Lists型
+'''<remarks> メソッドはListFuncクラスに書き込む。Listの値とインデックス番号も一緒に渡されます
+Public Function Callback(ByVal MethodName As String, ParamArray Args() As Variant) As List
+    Dim newList As New List
+    Dim Arg() As Variant
+    ReDim Arg(0 To UBound(Args()) + 2)
+    Dim i As Long
+    For i = LBound(Arg()) To UBound(Args())
+        If IsObject(Args(i)) Then
+            Set Arg(i + 2) = Args(i)
+        Else
+            Arg(i + 2) = Args(i)
+        End If
+    Next
+    Dim obj As New ListFunc
+    Dim buf As Variant
+    For i = 1 To Me.Count
+        Arg(0) = Item(i)
+        Arg(1) = i
+        buf = CallByName(obj, MethodName, VbMethod, Arg())
+        If Not (IsEmpty(buf)) Then newList.Add buf
+    Next
+    Set Callback = newList
+End Function
 '''<summary> イテレータ ※単独では使用できません
 '''<param> なし
 '''<returns> なし
