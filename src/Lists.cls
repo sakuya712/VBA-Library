@@ -572,6 +572,57 @@ Public Function Where(ByVal operator As ComparisonOperatorsEnum, ByVal compare A
         End Select
 End Function
 
+'''<summary> Lists同士を結合して新たにListを作成する
+'''<param> 結合したいLists
+'''<returns> 結合したLists
+Public Function Concat(ParamArray Lists() As Variant) As Lists
+    Dim ele As Variant
+    For Each ele In Lists
+        If ele Is Me Then err.Raise Number:=1035, Description:="クラス：Lists、メソッド：Concat、自分自身を引数にすることはできません"
+    Next ele
+    Dim buf As Lists
+    Set buf = New Lists
+    Dim key As String
+    Dim i As Long
+    For i = 1 To Me.Count
+        key = Me.KeyList(i)
+        buf.Add Me(key), key
+    Next i
+    Dim newLists As New Lists
+    Dim newList As New List
+    Dim j As Long
+    For i = LBound(Lists) To UBound(Lists)
+        Set newLists = Lists(i)
+        For j = 1 To newLists.Count
+            key = newLists.KeyList(j)
+            Set newList = newLists(key)
+            For Each ele In newList
+                buf.Add ele, key
+            Next ele
+        Next j
+    Next i
+    Set Concat = buf
+End Function
+
+'''<summary> Index用のListをListsに追加する
+'''<param> Indexのキー名
+'''<returns> なし
+Public Function AddIndex(ByVal IndexKey As String)
+    Dim key As Variant
+    Dim cnt As Long
+    For Each key In KeyLst
+        if cnt < Me.CountList(key) Then
+            cnt = Me.CountList(key)
+        End If
+    Next key
+    Dim ls As new List
+    Dim i As Long
+    For i = 1 to cnt
+        ls.Add i
+    Next i
+    Me.Add ls, IndexKey
+End Function
+
 '''<summary> イテレータ ※単独では使用できません
 '''<param> なし
 '''<returns> なし

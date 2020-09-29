@@ -830,10 +830,14 @@ End Function
 Public Function Rstrip(ByVal char As String) As List
     Dim ls As New List
     Dim i As Long
-    Dim Arr As Variant
+    Dim pos As Long
     For i = 1 To Me.Count
-        Arr = VBA.Split(CStr(Me(i)), char)
-        ls.Add Arr(0)
+        pos = VBA.InstrRev(Me(i),char)
+        If pos = 0 Then
+            ls.Add Me(i)
+        Else
+            ls.Add VBA.Left(Me(i), pos - 1)
+        End If
     Next i
     Set Rstrip = ls
 End Function
@@ -846,12 +850,15 @@ Public Function Lstrip(ByVal char As String) As List
     Dim i As Long
     Dim Arr As Variant
     For i = 1 To Me.Count
-        Arr = VBA.Split(CStr(Me(i)), char)
-        If UBound(Arr) Then
-            ls.Add Arr(1)
-        Else
-            ls.Add Arr(0)
-        End If
+        Arr = VBA.Split(CStr(Me(i)), char, 2)
+        Select Case UBound(Arr)
+            Case -1
+                ls.Add Me(i)
+            Case 0
+                ls.Add Arr(0)
+            Case Else
+                ls.Add Arr(1)
+        End Select
     Next i
     Set Lstrip = ls
 End Function

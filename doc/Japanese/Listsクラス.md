@@ -7,8 +7,10 @@
 - [Listsクラス](#listsクラス)
   - [メソッド](#メソッド)
     - [Add](#add)
+    - [AddIndex](#addindex)
     - [AddTable](#addtable)
     - [AddValue](#addvalue)
+    - [Concat](#concat)
     - [Count](#count)
     - [CountList](#countlist)
     - [IsKey](#iskey)
@@ -30,7 +32,7 @@ List型のコレクションクラス
 ## メソッド
 
 ### Add
-引数： 追加するListもしくは要素、キー
+引数： 追加するListもしくは要素、キー  
 戻値： なし
 
 * 要素を追加します。
@@ -54,6 +56,29 @@ bar
 baz
 End Sub
 ```
+
+### AddIndex
+引数： Indexのキー名  
+戻値： なし
+
+* インデックス用のListを作成します
+
+```VB
+Sub test()
+    Dim lsts As New Lists
+    lsts.AddValue Array("foo", "bar", "baz"), "key1"
+    lsts.AddIndex "index"
+    Dim Str
+    For Each Str In lsts("index")
+        Debug.Print Str
+    Next
+End Sub
+'Print
+1
+2
+3
+```
+
 
 ### AddTable
 引数： テーブルの左上のセル(range型)[最終行、最終列]  
@@ -86,6 +111,45 @@ End Sub
 foo
 bar
 baz
+```
+
+### Concat
+引数： 結合したいLists(複数可能)   
+戻値： 結合したLists
+
+* Lists同士を結合して新たにListsを作成する。
+* 同じキーがある場合は要素が結合される
+
+```VB
+Sub test()
+    Dim lsts As New Lists
+    lsts.AddValue Array("foo", "bar", "baz"), "key1"
+    lsts.AddValue Array("Alice", "Bob", "Charlie"), "key2"
+    Dim lsts2 As New Lists
+    lsts2.AddValue Array("spam", "ham", "eggs"), "key3"
+    lsts2.AddValue Array("qux", "quux"), "key1"
+    Dim newLists As New Lists
+    Set newLists = lsts.Concat(lsts2)
+    Dim lst
+    Dim i
+    For Each lst In newLists
+        For Each i In lst
+            Debug.Print i
+        Next
+    Next
+End Sub
+'Print
+foo
+bar
+baz
+qux
+quux
+Alice
+Bob
+Charlie
+spam
+ham
+eggs
 ```
 
 ### Count
@@ -275,7 +339,7 @@ key3
 * Excel以外では使えないので削除すること
 
 ### Where
-引数： 比較演算子の列挙型、比較対象(List型、Collection型、プリミティブ型に対応)、基準となるキー 
+引数： 比較演算子の列挙型、比較対象(List型、Collection型、プリミティブ型に対応)、基準となるキー  
 戻値： Lists型
 
 * 条件にあう要素のみを残し、新たにListsを作成する
